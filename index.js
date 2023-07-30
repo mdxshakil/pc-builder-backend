@@ -90,6 +90,26 @@ async function run() {
             }
         })
 
+        //add new commnet on product
+        app.post("/products/:id", async (req, res) => {
+            const productId = req.params.id;
+            const comment = req.body.comment;
+
+            try {
+                const result = await componentsCollection.updateOne(
+                    { _id: new ObjectId(productId) },
+                    { $push: { reviews: comment } }
+                );
+                res.status(200).send({ success: true, message: "Comment added successfully" })
+
+            } catch (error) {
+                res.status(500).json({
+                    success: false,
+                    message: "Error adding comment"
+                });
+            }
+        })
+
 
 
     } finally { }
