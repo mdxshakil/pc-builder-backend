@@ -75,7 +75,6 @@ async function run() {
             }
         })
 
-
         //get all products
         app.get("/category", async (req, res) => {
             const query = req.query;
@@ -93,7 +92,7 @@ async function run() {
         //add new commnet on product
         app.post("/products/:id", async (req, res) => {
             const productId = req.params.id;
-            const comment = req.body.comment;
+            const { comment } = req.body.comment;
 
             try {
                 const result = await componentsCollection.updateOne(
@@ -106,6 +105,36 @@ async function run() {
                 res.status(500).json({
                     success: false,
                     message: "Error adding comment"
+                });
+            }
+        })
+
+        //add new review on product
+        app.patch("/products/:id", async (req, res) => {
+            const productId = req.params.id;
+            const rating = req.body.rating;
+            const user = req.body.user;
+            const ratingData = {
+                productId,
+                rating,
+                user
+            }
+            try {
+                const result = await componentsCollection.updateOne(
+                    { _id: new ObjectId(productId) },
+                    {
+                        $push: {
+                            ratings: rating, // Push rating into the ratings array
+                            individualRatings: ratingData, // Push ratingData into the individualRatings array
+                        },
+                    }
+                );
+                res.status(200).send({ success: true, message: "Rating submitted successfully" })
+
+            } catch (error) {
+                res.status(500).json({
+                    success: false,
+                    message: "Error rating submission"
                 });
             }
         })
